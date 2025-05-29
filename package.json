@@ -1,0 +1,27 @@
+{
+  "name": "melodicmarlin",
+  "version": "1.0.0",
+  "description": "Chrome extension for testing CSS selectors through visual highlighting",
+  "type": "module",
+  "scripts": {
+    "build": "shx rm -rf dist && shx mkdir -p dist && pnpm run build:all && pnpm run copy:assets",
+    "build:all": "pnpm run build:background && pnpm run build:content && pnpm run build:popup",
+    "build:background": "vite build --config vite.background.config.ts",
+    "build:content": "vite build --config vite.content.config.ts",
+    "build:popup": "vite build --config vite.popup.config.ts",
+    "copy:assets": "shx cp src/manifest.json src/popup/popup.html src/popup/popup.css dist/ && pnpm run create:icons",
+    "create:icons": "node scripts/create-icons.js",
+    "dev": "pnpm run build && pnpm run build:background --watch & pnpm run build:content --watch & pnpm run build:popup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "shx rm -rf dist node_modules/.vite"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.323",
+    "jsdom": "26.1.0",
+    "shx": "^0.4.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4"
+  }
+}

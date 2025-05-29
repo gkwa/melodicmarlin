@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MelodicMarlin</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        <h1>🎯 MelodicMarlin</h1>
+        <p>CSS Selector Tester</p>
+      </div>
+
+      <div class="controls">
+        <div class="toggle-group">
+          <label class="toggle">
+            <input type="checkbox" id="debugToggle" />
+            <span class="slider"></span>
+          </label>
+          <span>Debug Mode</span>
+        </div>
+
+        <button id="highlightBtn" class="btn btn-primary">🎨 Highlight Elements</button>
+
+        <button id="clearBtn" class="btn btn-secondary">🧹 Clear Highlights</button>
+
+        <button id="testBtn" class="btn btn-secondary">🧪 Test Selectors</button>
+      </div>
+
+      <div class="status" id="status">Ready</div>
+
+      <div class="results" id="results" style="display: none">
+        <h3>Results:</h3>
+        <div id="resultContent"></div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
