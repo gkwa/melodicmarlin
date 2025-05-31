@@ -2,14 +2,14 @@ import { Logger, LogLevel } from "../shared/logger.js"
 
 class PopupController {
   private logger: Logger
-  private debugToggle: HTMLInputElement
-  private autoHighlightToggle: HTMLInputElement
-  private highlightBtn: HTMLButtonElement
-  private clearBtn: HTMLButtonElement
-  private testBtn: HTMLButtonElement
-  private status: HTMLElement
-  private results: HTMLElement
-  private resultContent: HTMLElement
+  private debugToggle!: HTMLInputElement
+  private autoHighlightToggle!: HTMLInputElement
+  private highlightBtn!: HTMLButtonElement
+  private clearBtn!: HTMLButtonElement
+  private testBtn!: HTMLButtonElement
+  private status!: HTMLElement
+  private results!: HTMLElement
+  private resultContent!: HTMLElement
 
   constructor() {
     this.logger = Logger.getInstance()
@@ -191,8 +191,7 @@ class PopupController {
 
   private async sendMessageToContentScript(action: string, data?: any): Promise<any> {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-
-    if (!tab.id) {
+    if (!tab || !tab.id) {
       throw new Error("No active tab found")
     }
 

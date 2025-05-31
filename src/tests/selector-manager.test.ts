@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest"
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { SelectorManager } from "../core/selector-manager"
 import { SelectorConfig } from "../shared/types"
 
@@ -19,15 +19,15 @@ class MockHTMLElement {
 }
 
 // Mock the instanceof check
-const originalHTMLElement = global.HTMLElement
-
+const originalHTMLElement = globalThis.HTMLElement
 const mockQuerySelectorAll = vi.fn()
 
 // Setup DOM mock
-Object.defineProperty(global, "document", {
+Object.defineProperty(globalThis, "document", {
   value: {
     querySelectorAll: mockQuerySelectorAll,
   },
+  configurable: true,
 })
 
 describe("SelectorManager", () => {
@@ -37,7 +37,10 @@ describe("SelectorManager", () => {
 
   beforeEach(() => {
     // Mock HTMLElement constructor for instanceof checks
-    global.HTMLElement = MockHTMLElement as any
+    Object.defineProperty(globalThis, "HTMLElement", {
+      value: MockHTMLElement,
+      configurable: true,
+    })
 
     selectorManager = new SelectorManager()
     testConfig = {
@@ -53,7 +56,10 @@ describe("SelectorManager", () => {
 
   afterEach(() => {
     // Restore original HTMLElement
-    global.HTMLElement = originalHTMLElement
+    Object.defineProperty(globalThis, "HTMLElement", {
+      value: originalHTMLElement,
+      configurable: true,
+    })
   })
 
   describe("testSelector", () => {
