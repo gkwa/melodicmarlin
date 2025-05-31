@@ -3,6 +3,7 @@ import { Logger, LogLevel } from "../shared/logger.js"
 class PopupController {
   private logger: Logger
   private debugToggle: HTMLInputElement
+  private autoHighlightToggle: HTMLInputElement
   private highlightBtn: HTMLButtonElement
   private clearBtn: HTMLButtonElement
   private testBtn: HTMLButtonElement
@@ -25,6 +26,7 @@ class PopupController {
 
   private bindElements(): void {
     this.debugToggle = document.getElementById("debugToggle") as HTMLInputElement
+    this.autoHighlightToggle = document.getElementById("autoHighlightToggle") as HTMLInputElement
     this.highlightBtn = document.getElementById("highlightBtn") as HTMLButtonElement
     this.clearBtn = document.getElementById("clearBtn") as HTMLButtonElement
     this.testBtn = document.getElementById("testBtn") as HTMLButtonElement
@@ -34,6 +36,7 @@ class PopupController {
 
     if (
       !this.debugToggle ||
+      !this.autoHighlightToggle ||
       !this.highlightBtn ||
       !this.clearBtn ||
       !this.testBtn ||
@@ -48,6 +51,10 @@ class PopupController {
   private setupEventHandlers(): void {
     this.debugToggle.addEventListener("change", () => {
       this.handleDebugToggle()
+    })
+
+    this.autoHighlightToggle.addEventListener("change", () => {
+      this.handleAutoHighlightToggle()
     })
 
     this.highlightBtn.addEventListener("click", () => {
@@ -65,8 +72,23 @@ class PopupController {
 
   private async loadState(): Promise<void> {
     try {
-      const result = await chrome.storage.local.get(["debugEnabled"])
-      this.debugToggle.checked = result.debugEnabled || false
+      this.logger.info("Loading popup state from storage...")
+      const result = await chrome.storage.local.get(["debugEnabled", "autoHighlightEnabled"])
+
+      this.logger.info("Raw storage result:", result)
+
+      // Set the checkbox states to match stored values
+      this.debugToggle.checked = result.debugEnabled === true
+      this.autoHighlightToggle.checked = result.autoHighlightEnabled === true
+
+      this.logger.info("Popup checkboxes set to:", {
+        debugEnabled: this.debugToggle.checked,
+        autoHighlightEnabled: this.autoHighlightToggle.checked,
+      })
+
+      // Verify the settings were applied
+      const verification = await chrome.storage.local.get(["debugEnabled", "autoHighlightEnabled"])
+      this.logger.info("Storage verification:", verification)
     } catch (error) {
       this.logger.error("Error loading state:", error)
     }
@@ -75,15 +97,54 @@ class PopupController {
   private async handleDebugToggle(): Promise<void> {
     const enabled = this.debugToggle.checked
 
+    this.logger.info("Debug toggle clicked, new state:", enabled)
+
     try {
+      // Save to storage first and wait for completion
+      this.logger.info("Saving debug setting to storage...")
       await chrome.storage.local.set({ debugEnabled: enabled })
+
+      // Verify it was saved
+      const verification = await chrome.storage.local.get(["debugEnabled"])
+      this.logger.info("Debug setting saved, verification:", verification)
+
+      // Then notify content script
       await this.sendMessageToContentScript("toggleDebug", { enabled })
 
       this.updateStatus(enabled ? "Debug mode enabled" : "Debug mode disabled")
-      this.logger.info("Debug toggled:", enabled)
+      this.logger.info("Debug toggle complete")
     } catch (error) {
       this.logger.error("Error toggling debug:", error)
       this.updateStatus("Error toggling debug mode")
+      // Revert checkbox state on error
+      this.debugToggle.checked = !enabled
+    }
+  }
+
+  private async handleAutoHighlightToggle(): Promise<void> {
+    const enabled = this.autoHighlightToggle.checked
+
+    this.logger.info("Auto highlight toggle clicked, new state:", enabled)
+
+    try {
+      // Save to storage first and wait for completion
+      this.logger.info("Saving auto highlight setting to storage...")
+      await chrome.storage.local.set({ autoHighlightEnabled: enabled })
+
+      // Verify it was saved
+      const verification = await chrome.storage.local.get(["autoHighlightEnabled"])
+      this.logger.info("Auto highlight setting saved, verification:", verification)
+
+      // Then notify content script
+      await this.sendMessageToContentScript("toggleAutoHighlight", { enabled })
+
+      this.updateStatus(enabled ? "Auto highlight enabled" : "Auto highlight disabled")
+      this.logger.info("Auto highlight toggle complete")
+    } catch (error) {
+      this.logger.error("Error toggling auto highlight:", error)
+      this.updateStatus("Error toggling auto highlight")
+      // Revert checkbox state on error
+      this.autoHighlightToggle.checked = !enabled
     }
   }
 
@@ -135,12 +196,15 @@ class PopupController {
       throw new Error("No active tab found")
     }
 
+    this.logger.info("Sending message to content script:", { action, data })
+
     return new Promise((resolve) => {
       chrome.tabs.sendMessage(tab.id!, { action, data }, (response) => {
         if (chrome.runtime.lastError) {
           this.logger.error("Message error:", chrome.runtime.lastError)
           resolve(null)
         } else {
+          this.logger.info("Content script response:", response)
           resolve(response)
         }
       })

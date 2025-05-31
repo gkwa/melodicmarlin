@@ -23,7 +23,14 @@ export const GENERIC_SELECTORS: SelectorConfig[] = [
     selector: 'button:contains("Fetched")',
     description: 'Buttons containing "Fetched" text',
     action: "highlight",
-    highlightColor: "#ff6600", // Orange for fetched buttons
+    highlightColor: "#00cc66", // Green for successful fetches
+  },
+  {
+    name: "Failed Fetch Button",
+    selector: 'button:contains("Failed to fetch")',
+    description: 'Buttons containing "Failed to fetch" text',
+    action: "highlight",
+    highlightColor: "#ff3333", // Red for failed fetches
   },
 ]
 

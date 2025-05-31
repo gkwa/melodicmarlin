@@ -61,7 +61,12 @@ export class SelectorManager implements ISelectorManager {
         }
       })
 
-      this.logger.info(`Highlighted ${elements.length} elements with selector: ${config.selector}`)
+      // Only log if elements were actually highlighted
+      if (elements.length > 0) {
+        this.logger.debug(
+          `Highlighted ${elements.length} elements with selector: ${config.selector}`,
+        )
+      }
     } catch (error) {
       this.logger.error(`Error highlighting elements:`, error)
     }
@@ -93,7 +98,10 @@ export class SelectorManager implements ISelectorManager {
         }
       })
 
-      this.logger.info(`Cleared highlights from ${highlightedElements.length} elements`)
+      // Only log if there were highlights to clear
+      if (highlightedElements.length > 0) {
+        this.logger.debug(`Cleared highlights from ${highlightedElements.length} elements`)
+      }
     } catch (error) {
       this.logger.error(`Error clearing highlights:`, error)
     }
