@@ -17,7 +17,7 @@
     "clean": "shx rm -rf dist node_modules/.vite"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.323",
+    "@types/chrome": "^0.0.325",
     "jsdom": "26.1.0",
     "shx": "^0.4.0",
     "typescript": "^5.8.3",
