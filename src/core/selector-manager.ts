@@ -99,7 +99,7 @@ export class SelectorManager implements ISelectorManager {
     }
   }
 
-  private findElements(selector: String): NodeListOf<Element> {
+  private findElements(selector: string): NodeListOf<Element> {
     // Handle special pseudo-selectors like :contains()
     if (selector.includes(":contains(")) {
       return this.handleContainsSelector(selector)
@@ -117,6 +117,13 @@ export class SelectorManager implements ISelectorManager {
     }
 
     const [, baseSelector, containsText] = match
+
+    // Check that containsText is defined
+    if (!containsText) {
+      this.logger.warn(`Empty contains text in selector: ${selector}`)
+      return document.querySelectorAll("nonexistent")
+    }
+
     const baseElements = document.querySelectorAll(baseSelector || "*")
     const matchingElements: Element[] = []
 

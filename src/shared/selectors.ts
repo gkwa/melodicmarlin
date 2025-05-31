@@ -10,7 +10,7 @@ export const CLAUDE_SELECTORS: SelectorConfig[] = [
   },
   {
     name: "Claude Responses",
-    selector: '.font-claude-message',
+    selector: ".font-claude-message",
     description: "Claude message containers",
     action: "highlight",
     highlightColor: "#00cc66", // Green for Claude responses
